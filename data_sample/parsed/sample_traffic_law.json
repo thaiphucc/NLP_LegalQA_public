@@ -1,0 +1,143 @@
+{
+  "doc_stem": "sample-traffic-law",
+  "preamble": "Sample public demo document. Not an official legal source.",
+  "footer": "For portfolio demonstration only.",
+  "nodes": {
+    "document": {
+      "doc_guid": "sample-traffic-law",
+      "doc_identity": "SAMPLE/2026/DEMO",
+      "doc_name": "Sample Traffic Safety Regulation",
+      "issue_date": "2026-01-01",
+      "effect_date": "2026-01-01",
+      "expire_date": null,
+      "gazette_number": null,
+      "gazette_date": null
+    },
+    "document_group": [
+      {"id": "demo-group", "name": "Demo legal documents"}
+    ],
+    "document_type": [
+      {"id": "demo-type", "name": "Demo regulation"}
+    ],
+    "effect_status": [
+      {"id": "effective", "name": "Effective"}
+    ],
+    "organizations": [
+      {"id": "demo-agency", "name": "Demo Agency"}
+    ],
+    "signers": [],
+    "fields": [
+      {"id": "traffic", "name": "Road traffic"}
+    ],
+    "related_documents": [],
+    "parts": [],
+    "chapters": [
+      {
+        "number": "I",
+        "title": "Traffic safety demo provisions",
+        "content": "",
+        "parent_part": null
+      }
+    ],
+    "sections": [],
+    "articles": [
+      {
+        "number": "1",
+        "title": "Helmet requirements",
+        "content": "This sample article describes helmet requirements for motorcycle riders.",
+        "parent_chapter": "I",
+        "parent_section": null,
+        "order": 1
+      },
+      {
+        "number": "2",
+        "title": "Traffic light compliance",
+        "content": "This sample article describes compliance with traffic light signals.",
+        "parent_chapter": "I",
+        "parent_section": null,
+        "order": 2
+      }
+    ],
+    "clauses": [
+      {
+        "number": "1",
+        "content": "Motorcycle riders must wear a helmet and fasten the strap properly.",
+        "parent_article": "1",
+        "order": 1
+      },
+      {
+        "number": "1",
+        "content": "Road users must comply with traffic light signals.",
+        "parent_article": "2",
+        "order": 1
+      }
+    ],
+    "points": [
+      {
+        "letter": "a",
+        "content": "Sample penalty: failure to wear a helmet may lead to an administrative fine.",
+        "parent_article": "1",
+        "parent_clause": "1",
+        "order": 1
+      },
+      {
+        "letter": "a",
+        "content": "Sample penalty: running a red light may lead to an administrative fine.",
+        "parent_article": "2",
+        "parent_clause": "1",
+        "order": 1
+      }
+    ]
+  },
+  "relationships": [
+    {
+      "type": "HAS_CHAPTER",
+      "from_label": "Document",
+      "from_id": "SAMPLE/2026/DEMO",
+      "to_label": "Chapter",
+      "to_id": "I"
+    },
+    {
+      "type": "HAS_ARTICLE",
+      "from_label": "Chapter",
+      "from_id": "I",
+      "to_label": "Article",
+      "to_id": "1"
+    },
+    {
+      "type": "HAS_ARTICLE",
+      "from_label": "Chapter",
+      "from_id": "I",
+      "to_label": "Article",
+      "to_id": "2"
+    },
+    {
+      "type": "HAS_CLAUSE",
+      "from_label": "Article",
+      "from_id": "1",
+      "to_label": "Clause",
+      "to_id": "1"
+    },
+    {
+      "type": "HAS_CLAUSE",
+      "from_label": "Article",
+      "from_id": "2",
+      "to_label": "Clause",
+      "to_id": "1"
+    },
+    {
+      "type": "HAS_POINT",
+      "from_label": "Clause",
+      "from_id": "1.1",
+      "to_label": "Point",
+      "to_id": "a"
+    },
+    {
+      "type": "HAS_POINT",
+      "from_label": "Clause",
+      "from_id": "2.1",
+      "to_label": "Point",
+      "to_id": "a"
+    }
+  ]
+}

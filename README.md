@@ -1,39 +1,56 @@
-# NLP-LegalQA
+# NLP-LegalQA: Vietnamese Legal Graph RAG & QA Chatbot
 
-Vietnamese legal document retrieval and QA chatbot built for a coursework team project. The system parses legal documents into a Neo4j graph, retrieves relevant legal provisions with hybrid search, reranks results, and generates grounded answers with legal citations.
+Vietnamese legal document retrieval and QA chatbot built for an Intro to Statistical Linguistics coursework team project. The system parses legal documents into a Neo4j graph, retrieves relevant legal provisions with hybrid search, reranks candidates, constructs amendment-aware context, and serves answers through FastAPI and a Streamlit prototype.
 
 ## Project Note
 
-This repository is a sanitized public version of a coursework team project. The original development repository is kept private because it contained credentials, local configuration files, large experiment artifacts, and internal development outputs.
+This repository is a sanitized public version of a coursework team project. The original development repository is kept private because it contained credentials, local configuration files, and internal development artifacts.
 
-This public version focuses on the core implementation:
-
-- Vietnamese legal document scraping and parsing
-- Neo4j content graph import
-- Dense vector retrieval and Neo4j fulltext search
-- Hybrid retrieval with multi-query aggregation
-- Cross-encoder reranking integration
-- Retrieval context assembly with amendment-aware metadata
-- Domain-specific answer generation
-- FastAPI and Streamlit prototypes
+This public repository is intended for academic portfolio and CV review. It does not include the original coursework database, private credentials, large generated datasets, model checkpoints, or internal experiment artifacts.
 
 ## Team Project And My Role
 
-This was a coursework team project. This public repository is a sanitized portfolio version and does not claim the full project as individual work.
+This was developed collaboratively as a team project. This public version does not claim the full project as solo work.
 
 My main contributions:
 
-- Query routing and intent classification for legal QA requests
-- Query rewriting and decomposition for multi-step legal questions
-- Hybrid retrieval integration using dense vector search and Neo4j fulltext search
-- Multi-query aggregation and reranking/evaluation pipeline integration
-- Amendment-aware retrieval context assembly
-- Domain-specific answer generation prompts
-- FastAPI and Streamlit chatbot prototype wiring
+- Query routing and query rewriting/decomposition
+- Hybrid retrieval integration combining dense retrieval and sparse BM25/Neo4j full-text search
+- Reranking and evaluation pipeline integration
+- Legal answer generation prompts and context construction
+- FastAPI and Streamlit prototype wiring
 
-## Security Notice
+Other components, including parts of the data collection, parsing, annotation, evaluation dataset, and broader project reporting, were developed collaboratively by the team.
 
-No production credentials are included in this public version. Configure services through environment variables only. Do not commit `.env`, local tool settings, model checkpoints, offline payloads, database dumps, or generated evaluation outputs.
+## Architecture
+
+The production pipeline is organized as:
+
+1. Query understanding: classify intent, rewrite multi-turn questions, and decompose complex legal questions.
+2. Hybrid retrieval: combine dense vector search with Neo4j full-text BM25 search.
+3. Aggregation: fuse multi-query results with RRF, Borda, or max-score aggregation.
+4. Reranking: apply a Vietnamese cross-encoder reranker to improve post-retrieval precision.
+5. Context construction: fetch graph hierarchy, sibling provisions, child provisions, and amendment metadata.
+6. Answer generation: produce grounded legal answers from retrieved context with anti-hallucination prompting.
+7. API/UI: expose the pipeline through FastAPI and a Streamlit chat prototype.
+
+## Repository Structure
+
+```text
+README.md
+CLAUDE.md
+.env.example
+.gitignore
+docker-compose.yml
+pyproject.toml
+uv.lock
+src/legal_scraper/       Core scraper, parser, Neo4j import, retrieval, reranking, API
+streamlit_ui/            Streamlit chat prototype
+scripts/                 Evaluation and local Neo4j demo setup scripts
+data_sample/             Small non-sensitive sample parsed document
+tests/unit/              Offline tests run by default
+tests/integration/       Optional tests requiring Neo4j or external services
+```
 
 ## Setup
 
@@ -41,40 +58,94 @@ No production credentials are included in this public version. Configure service
 uv sync
 ```
 
-Copy the environment template and fill in your own local values:
+Copy the environment template and fill in local values as needed:
 
 ```bash
 cp .env.example .env
 ```
 
+On PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
 ## Quick Demo Without Private Infrastructure
 
-The real RAG pipeline requires Neo4j, embeddings, a reranker model, and an LLM endpoint. For portfolio review, this repository includes an offline demo mode that returns deterministic sample responses with mock sources and timings.
+The real RAG pipeline requires Neo4j, embeddings, a reranker model, and an LLM endpoint. For public review, this repository includes an offline demo mode that returns deterministic sample responses with mock source cards and timing data.
 
-Start the API in demo mode:
+Terminal 1:
 
 ```powershell
 $env:LEGALQA_DEMO="1"
 uv run legal-api
 ```
 
-In another terminal, start the Streamlit UI:
+Terminal 2:
 
 ```powershell
 uv run --extra ui streamlit run streamlit_ui/app.py
 ```
 
-Then open the Streamlit URL and ask:
+Then ask:
 
 ```text
 không đội mũ bảo hiểm phạt bao nhiêu
 ```
 
-Demo mode is intentionally not legal advice. It exists so reviewers can see the chat interface, source cards, sub-query display, and pipeline timing UI without access to the private Neo4j database or model endpoints.
+Demo mode is only for showing the API/UI flow. It is not legal advice and does not exercise the full graph RAG stack.
+
+## Testing
+
+Run the default public test suite:
+
+```bash
+uv run --extra dev pytest
+```
+
+Default tests are offline unit tests. They do not require Neo4j credentials, a running database, downloaded embedding models, local LLMs, or API keys.
+
+Run optional integration tests only after configuring Neo4j:
+
+```bash
+uv run --extra dev pytest -m integration
+```
+
+Integration tests skip gracefully when required environment variables are missing.
+
+## Optional Neo4j Sample Pipeline
+
+The original coursework Neo4j database is not included. To try a small local graph with non-sensitive sample data:
+
+1. Start Neo4j:
+
+```bash
+docker compose up -d
+```
+
+2. Initialize constraints and full-text indexes:
+
+```bash
+uv run python scripts/init_neo4j.py
+```
+
+3. Import sample data:
+
+```bash
+uv run python scripts/import_sample_data.py
+```
+
+4. Run integration checks:
+
+```bash
+uv run --extra dev pytest -m integration
+```
+
+The full production retrieval flow still requires embeddings and a configured LLM/reranker environment. This sample pipeline exists to demonstrate graph schema setup and local import reproducibility, not to recreate the private coursework database.
 
 ## Core Commands
 
-Search for legal documents:
+Search for legal documents from the public source API:
 
 ```bash
 uv run legal-scraper search "Luật" -n 10
@@ -98,7 +169,7 @@ uv run legal-scraper import-neo4j \
   --database "$NEO4J_DATABASE"
 ```
 
-Run the full retrieval pipeline:
+Run the full retrieval pipeline when Neo4j and models are configured:
 
 ```bash
 uv run legal-scraper query \
@@ -109,50 +180,21 @@ uv run legal-scraper query \
   --database "$NEO4J_DATABASE"
 ```
 
-Start the API:
+## Limitations
 
-```bash
-uv run legal-api
-```
+- This repository does not include the original private Neo4j database.
+- Demo mode uses mock responses and does not perform real retrieval.
+- Full retrieval requires indexed Neo4j data, embedding models, a reranker model, and an LLM endpoint.
+- Legal answers generated by this project are experimental and should not be treated as legal advice.
+- Some historical experiment scripts are retained for context but require user-provided data and credentials.
 
-Start the Streamlit prototype:
+## Security And Data Notice
 
-```bash
-uv run streamlit run streamlit_ui/app.py
-```
-
-## Testing
-
-Run the default public test suite:
-
-```bash
-uv run pytest
-```
-
-The default tests are offline unit tests and do not require credentials, a Neo4j instance, downloaded embedding models, or external LLM APIs.
-
-Full integration testing requires your own Neo4j database and model/API configuration:
-
-```bash
-uv run legal-scraper query \
-  -q "không đội mũ bảo hiểm phạt bao nhiêu" \
-  --uri "$NEO4J_URI" \
-  --user "$NEO4J_USER" \
-  --password "$NEO4J_PASSWORD" \
-  --database "$NEO4J_DATABASE"
-```
-
-## Public Release Scope
-
-The following were intentionally excluded from this sanitized version:
-
-- Real credentials and local `.env` files
-- `.claude/`, `.agents/`, editor and local tool settings
-- Large scraped datasets and generated experiment outputs
-- Fine-tuning artifacts, local model checkpoints, offline payloads
-- Notebook outputs that may contain local paths or run-specific data
-- Original Git history from the private repository
+- No production credentials are included.
+- Do not commit `.env`, local agent settings, model checkpoints, offline payloads, database dumps, generated evaluation outputs, or private datasets.
+- If a credential was ever committed in a private development history, revoke or rotate it before publishing any repository.
+- This public version includes only a small synthetic sample document under `data_sample/`.
 
 ## License
 
-No license is provided yet. This repository is published for academic portfolio and demonstration purposes. Choose a license only after the team agrees on reuse permissions.
+No license is provided yet. This repository is published for academic and portfolio demonstration only. A reuse license should be added only after the team agrees on licensing.

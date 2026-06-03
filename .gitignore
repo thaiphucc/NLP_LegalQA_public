@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .venv/
+.venv-test/
 .uv-cache/
 .uv-python/
 dist/
@@ -20,12 +21,19 @@ build/
 # Generated data and experiment outputs
 data/
 data2/
+!data_sample/
+!data_sample/**
 qa_dataset/
 eval_results/
 offline_payloads/
 offline_packages/
 models/
 *.parquet
+*.db
+*.dump
+*.backup
+*.sqlite
+.ipynb_checkpoints/
 
 # Misc
 *.log
