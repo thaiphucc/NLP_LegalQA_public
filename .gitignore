@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.uv-cache/
+dist/
+build/
+*.egg-info/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+.claude/
+.agents/
+.vscode/
+
+# Generated data and experiment outputs
+data/
+data2/
+qa_dataset/
+eval_results/
+offline_payloads/
+offline_packages/
+models/
+*.parquet
+
+# Misc
+*.log
+out.txt
+test.html
+test.txt
