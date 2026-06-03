@@ -2,7 +2,52 @@
 
 [![CI](https://github.com/thaiphucc/NLP_LegalQA_public/actions/workflows/ci.yml/badge.svg)](https://github.com/thaiphucc/NLP_LegalQA_public/actions/workflows/ci.yml)
 
+## Architecture Overview
+
 Vietnamese legal document retrieval and QA chatbot built for an Intro to Statistical Linguistics coursework team project. The system parses legal documents into a Neo4j graph, retrieves relevant legal provisions with hybrid search, reranks candidates, constructs amendment-aware context, and serves answers through FastAPI and a Streamlit prototype.
+
+
+### Data Pipeline
+
+```mermaid
+flowchart TD
+    S["Legal Sources<br/>National Legal Portal / legal websites"]
+    SCR["Scraper<br/>fetch metadata and HTML content"]
+    PAR["Parser<br/>clean HTML and extract hierarchy"]
+    KG[("Neo4j Graph DB")]
+    VI[("Vector Index")]
+    AR[("Amendment Relations")]
+
+    S --> SCR --> PAR
+    PAR --> KG
+    PAR --> VI
+    PAR --> AR
+```
+
+### QA Pipeline
+
+```mermaid
+flowchart TD
+    U["User Query"]
+    R["Intent Classification / Router"]
+    Q["Query Rewriting and Decomposition"]
+    H["Hybrid Retrieval"]
+
+    V["Vector Search"]
+    B["Neo4j Full-text / BM25 Search"]
+
+    F["Result Fusion / Aggregation"]
+    RR["Reranking"]
+    A["Amendment-aware Filter"]
+    C["Graph Context Builder"]
+    L["LLM Answer Generation"]
+    O["Answer with Legal Sources"]
+
+    U --> R --> Q --> H
+    H --> V --> F
+    H --> B --> F
+    F --> RR --> A --> C --> L --> O
+```
 
 ## Project Note
 
@@ -33,6 +78,15 @@ The production pipeline is organized as:
 5. Context construction: fetch graph hierarchy, sibling provisions, child provisions, and amendment metadata.
 6. Answer generation: produce grounded legal answers from retrieved context with anti-hallucination prompting.
 7. API/UI: expose the pipeline through FastAPI and a Streamlit chat prototype.
+
+## Amendment-aware Legal Reasoning
+
+The RAG pipeline is specifically designed to handle the complexity of Vietnamese legal documents, where provisions are frequently amended, supplemented, or replaced by subsequent laws. 
+
+- **Graph-based Dependency Tracking**: Amendment relationships (e.g., `THAY_THE`, `BỔ_SUNG`, `BÃI_BỎ`) are stored natively in Neo4j.
+- **Context Expansion**: When a specific Article or Clause is retrieved, the pipeline queries Neo4j for any related amendments. 
+- **Stale Context Penalization**: Outdated or replaced legal documents are penalized during the retrieval phase to prevent the LLM from generating answers based on expired laws.
+- **Hierarchical Construction**: The context injected into the prompt contains both the original provision and its explicit amendments, ensuring the LLM reasons over the most current legal state.
 
 ## Repository Structure
 
@@ -71,6 +125,8 @@ Copy-Item .env.example .env
 ```
 
 ## Demo
+
+![Demo UI](assets/Demo.png)
 
 The RAG pipeline requires Neo4j, embeddings, a reranker model, and an LLM endpoint. For public review, this repository includes an offline demo mode that returns deterministic sample responses with mock source cards and timing data.
 
