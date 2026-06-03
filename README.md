@@ -17,14 +17,19 @@ This public version focuses on the core implementation:
 - Domain-specific answer generation
 - FastAPI and Streamlit prototypes
 
-## Team And Credit
+## Team Project And My Role
 
-This was a team project. Please update this section before publishing with the final contributor list approved by the team.
+This was a coursework team project. This public repository is a sanitized portfolio version and does not claim the full project as individual work.
 
-- Thai Hoang Phuc - query routing, query rewriting/decomposition, hybrid retrieval integration, reranking/evaluation pipeline, answer generation, API/Streamlit prototype
-- Teammate A - data collection / preprocessing
-- Teammate B - evaluation dataset / experiments
-- Teammate C - report / testing / supporting implementation
+My main contributions:
+
+- Query routing and intent classification for legal QA requests
+- Query rewriting and decomposition for multi-step legal questions
+- Hybrid retrieval integration using dense vector search and Neo4j fulltext search
+- Multi-query aggregation and reranking/evaluation pipeline integration
+- Amendment-aware retrieval context assembly
+- Domain-specific answer generation prompts
+- FastAPI and Streamlit chatbot prototype wiring
 
 ## Security Notice
 
@@ -89,6 +94,27 @@ Start the Streamlit prototype:
 
 ```bash
 uv run streamlit run streamlit_ui/app.py
+```
+
+## Testing
+
+Run the default public test suite:
+
+```bash
+uv run pytest
+```
+
+The default tests are offline unit tests and do not require credentials, a Neo4j instance, downloaded embedding models, or external LLM APIs.
+
+Full integration testing requires your own Neo4j database and model/API configuration:
+
+```bash
+uv run legal-scraper query \
+  -q "không đội mũ bảo hiểm phạt bao nhiêu" \
+  --uri "$NEO4J_URI" \
+  --user "$NEO4J_USER" \
+  --password "$NEO4J_PASSWORD" \
+  --database "$NEO4J_DATABASE"
 ```
 
 ## Public Release Scope
