@@ -8,8 +8,6 @@ This repository is a sanitized public version of a coursework team project. The 
 
 This public repository is intended for academic portfolio and CV review. It does not include the original coursework database, private credentials, large generated datasets, model checkpoints, or internal experiment artifacts.
 
-## Team Project And My Role
-
 This was developed collaboratively as a team project. This public version does not claim the full project as solo work.
 
 My main contributions:
