@@ -47,6 +47,31 @@ Copy the environment template and fill in your own local values:
 cp .env.example .env
 ```
 
+## Quick Demo Without Private Infrastructure
+
+The real RAG pipeline requires Neo4j, embeddings, a reranker model, and an LLM endpoint. For portfolio review, this repository includes an offline demo mode that returns deterministic sample responses with mock sources and timings.
+
+Start the API in demo mode:
+
+```powershell
+$env:LEGALQA_DEMO="1"
+uv run legal-api
+```
+
+In another terminal, start the Streamlit UI:
+
+```powershell
+uv run --extra ui streamlit run streamlit_ui/app.py
+```
+
+Then open the Streamlit URL and ask:
+
+```text
+không đội mũ bảo hiểm phạt bao nhiêu
+```
+
+Demo mode is intentionally not legal advice. It exists so reviewers can see the chat interface, source cards, sub-query display, and pipeline timing UI without access to the private Neo4j database or model endpoints.
+
 ## Core Commands
 
 Search for legal documents:

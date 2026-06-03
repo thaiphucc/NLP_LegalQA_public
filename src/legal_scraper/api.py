@@ -86,9 +86,24 @@ class ChatResponse(BaseModel):
 _components: dict[str, Any] = {}
 
 
+def _demo_mode_enabled() -> bool:
+    return os.getenv("LEGALQA_DEMO", "").lower() in {"1", "true", "yes", "on"}
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialise heavy components once at startup, tear down on shutdown."""
+    if _demo_mode_enabled():
+        _components["demo_mode"] = True
+        _components["provider"] = "demo"
+        _components["model_name"] = "offline-demo"
+        _components["base_url"] = "none"
+        print("[api] Demo mode enabled. Heavy RAG components were not loaded.")
+        yield
+        _components.clear()
+        print("[api] Demo shutdown complete.")
+        return
+
     from legal_scraper.embedder import Neo4jEmbedder
     from legal_scraper.generator import AnswerGenerator
     from legal_scraper.query_rewriter import QueryRewriter
@@ -176,6 +191,7 @@ async def health():
     ready = bool(_components)
     return {
         "status": "ok" if ready else "initializing",
+        "demo_mode": bool(_components.get("demo_mode")),
         "components_loaded": list(_components.keys()),
         "provider": _components.get("provider"),
         "model": _components.get("model_name"),
@@ -186,6 +202,11 @@ async def health():
 @app.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
     """Full chat pipeline: rewrite → route → decompose → search → rerank → generate."""
+    if _components.get("demo_mode"):
+        from legal_scraper.demo import build_demo_response
+
+        return ChatResponse(**build_demo_response(req.query))
+
     from legal_scraper.embedder import Neo4jEmbedder
 
     embedder: Neo4jEmbedder = _components["embedder"]
