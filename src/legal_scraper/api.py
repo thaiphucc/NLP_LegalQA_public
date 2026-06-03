@@ -23,13 +23,19 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 # Ensure src/ is importable
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:  # pragma: no cover - keeps offline demo resilient
+    def load_dotenv(*args, **kwargs):
+        return False
+
 
 load_dotenv()
 
